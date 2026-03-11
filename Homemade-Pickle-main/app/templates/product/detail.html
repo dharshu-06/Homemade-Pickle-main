@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} - Pickle Snacks{% endblock %}
+{% block content %}
+<div class="container py-5">
+
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('product.index') }}" style="color:#2c5f2d;">Shop</a>
+      </li>
+      <li class="breadcrumb-item active">{{ product.name }}</li>
+    </ol>
+  </nav>
+
+  <div class="row g-5">
+
+    <!-- Product Image -->
+    <div class="col-md-5">
+      <div style="border-radius:12px; overflow:hidden; height:400px; background:#f1f8f1;">
+        <img src="{{ product.get('image_url') or '/static/images/default-product.jpg' }}"
+             class="w-100 h-100" style="object-fit:cover;"
+             alt="{{ product.name }}"
+             onerror="this.src='/static/images/default-product.jpg'">
+      </div>
+    </div>
+
+    <!-- Product Info -->
+    <div class="col-md-7">
+      <h1 class="fw-bold mb-2" style="color:#2c5f2d;">{{ product.name }}</h1>
+
+      {% if product.get('stock', 0) == 0 %}
+        <span class="badge bg-danger mb-3 fs-6">Out of Stock</span>
+      {% elif product.get('stock', 0) <= 10 %}
+        <span class="badge bg-warning text-dark mb-3 fs-6">
+          Limited Stock — {{ product.stock }} left
+        </span>
+      {% else %}
+        <span class="badge bg-success mb-3 fs-6">In Stock</span>
+      {% endif %}
+
+      <div class="product-price fs-2 fw-bold mb-3">
+        ${{ "%.2f" | format(product.price) }}
+      </div>
+
+      <p class="text-muted mb-4">{{ product.description }}</p>
+
+      <p class="small text-muted mb-4">
+        <i class="bi bi-box me-1"></i>
+        <strong>{{ product.get('stock', 0) }}</strong> units available
+      </p>
+
+      {% if product.get('stock', 0) > 0 %}
+      <form action="/add-to-cart/{{ product._id }}" method="POST">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div>
+            <label class="form-label fw-semibold">Quantity</label>
+            <input type="number" name="quantity" value="1" min="1"
+                   max="{{ product.stock }}" class="form-control"
+                   style="width:90px;">
+          </div>
+        </div>
+        <div class="d-flex gap-2">
+          <button type="submit"
+                  class="btn-custom border-0 rounded px-4 py-2 fs-6"
+                  style="cursor:pointer;">
+            <i class="bi bi-cart-plus me-2"></i>Add to Cart
+          </button>
+          <a href="/cart"
+             class="btn-custom-secondary text-decoration-none rounded px-4 py-2 fs-6">
+            <i class="bi bi-cart3 me-2"></i>View Cart
+          </a>
+        </div>
+      </form>
+      {% else %}
+      <button class="btn btn-secondary px-4 py-2" disabled>Out of Stock</button>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <!-- Related Products -->
+  {% if related %}
+  <div class="mt-5">
+    <h4 class="fw-bold mb-4">You Might Also Like</h4>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+      {% for item in related %}
+      <div class="col">
+        <div class="product-card card h-100">
+          <div style="height:160px; overflow:hidden; background:#f1f8f1;">
+            <img src="{{ item.get('image_url') or '/static/images/default-product.jpg' }}"
+                 class="w-100 h-100" style="object-fit:cover;"
+                 alt="{{ item.name }}"
+                 onerror="this.src='/static/images/default-product.jpg'">
+          </div>
+          <div class="product-card-body">
+            <div class="product-name">{{ item.name }}</div>
+            <div class="product-price">${{ "%.2f" | format(item.price) }}</div>
+            <a href="{{ url_for('product.detail', product_id=item._id) }}"
+               class="btn-custom text-decoration-none px-3 py-2 rounded small">
+              View
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

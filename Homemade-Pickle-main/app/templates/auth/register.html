@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Register - Pickle Snacks{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-5 col-lg-4">
+      <div class="card shadow border-0" style="border-radius:12px;">
+        <div class="card-body p-4">
+
+          <h3 class="fw-bold text-center mb-1" style="color:#2c5f2d;">Create Account 🥒</h3>
+          <p class="text-center text-muted small mb-4">Join our pickle family!</p>
+
+          <form method="POST" action="{{ url_for('auth.register') }}">
+
+            <div class="form-group">
+              <label class="form-label">Username</label>
+              <input type="text" class="form-control" name="username"
+                     value="{{ username or '' }}"
+                     placeholder="Min. 3 characters" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input type="email" class="form-control" name="email"
+                     value="{{ email or '' }}"
+                     placeholder="your@email.com" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input type="password" class="form-control" name="password"
+                     placeholder="Min. 6 characters" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Confirm Password</label>
+              <input type="password" class="form-control" name="confirm_password"
+                     placeholder="Repeat your password" required>
+            </div>
+
+            <button type="submit" class="btn-custom w-100 py-2 border-0 rounded mt-2"
+                    style="cursor:pointer;">
+              <i class="bi bi-person-plus me-2"></i>Create Account
+            </button>
+          </form>
+
+          <p class="text-center mt-3 mb-0 small">
+            Already have an account?
+            <a href="{{ url_for('auth.login') }}" style="color:#2c5f2d;" class="fw-semibold">
+              Login here
+            </a>
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

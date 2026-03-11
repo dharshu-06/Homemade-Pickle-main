@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Shop - Pickle Snacks{% endblock %}
+{% block content %}
+
+<!-- Hero -->
+<div class="hero-section">
+  <div class="container">
+    <h1>🥒 Homemade Pickles & Snacks</h1>
+    <p class="lead">Crafted with love · Delivered fresh · 100% homemade</p>
+    <form class="d-flex justify-content-center mt-3"
+          action="{{ url_for('product.index') }}" method="GET">
+      <div class="input-group" style="max-width:480px;">
+        <input class="form-control form-control-lg" type="search" name="search"
+               placeholder="Search pickles, snacks…" value="{{ search or '' }}">
+        <button class="btn btn-warning fw-semibold" type="submit">Search</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="container pb-5">
+
+  {% if search %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0">
+      Results for "<strong>{{ search }}</strong>"
+      <span class="badge bg-secondary ms-2">{{ pagination.total }} found</span>
+    </h5>
+    <a href="{{ url_for('product.index') }}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-x-circle me-1"></i>Clear
+    </a>
+  </div>
+  {% else %}
+  <h4 class="fw-bold mb-4">🛒 Our Products</h4>
+  {% endif %}
+
+  {% if products %}
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for product in products %}
+    <div class="col">
+      <div class="product-card card h-100">
+
+        <div style="height:220px; overflow:hidden; background:#f1f8f1;">
+          <img src="{{ product.get('image_url') or '/static/images/default-product.jpg' }}"
+               class="w-100 h-100"
+               style="object-fit:cover;"
+               alt="{{ product.name }}"
+               onerror="this.src='/static/images/default-product.jpg'">
+        </div>
+
+        <div class="product-card-body">
+
+          {% if product.get('stock', 0) == 0 %}
+            <span class="badge bg-danger mb-2">Out of Stock</span>
+          {% elif product.get('stock', 0) <= 10 %}
+            <span class="badge bg-warning text-dark mb-2">
+              Limited — {{ product.stock }} left
+            </span>
+          {% else %}
+            <span class="badge bg-success mb-2">In Stock</span>
+          {% endif %}
+
+          <div class="product-name">{{ product.name }}</div>
+          <div class="product-description">{{ product.description }}</div>
+          <div class="product-price">${{ "%.2f" | format(product.price) }}</div>
+
+          <div class="d-flex gap-2 mt-auto">
+            <a href="{{ url_for('product.detail', product_id=product._id) }}"
+               class="btn-custom text-decoration-none px-3 py-2 rounded small">
+              View Details
+            </a>
+
+            {% if product.get('stock', 0) > 0 %}
+            <form action="/add-to-cart/{{ product._id }}"
+                  method="POST"
+                  class="d-flex align-items-center gap-1">
+              <input type="hidden" name="quantity" value="1">
+              <button type="submit"
+                      class="btn-custom-secondary border-0 rounded px-3 py-2 small"
+                      style="cursor:pointer;">
+                <i class="bi bi-cart-plus me-1"></i>Add to Cart
+              </button>
+            </form>
+            {% else %}
+            <button class="btn btn-sm btn-secondary" disabled>Out of Stock</button>
+            {% endif %}
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if pagination.pages > 1 %}
+  <nav class="d-flex justify-content-center mt-5">
+    <ul class="pagination">
+      {% if pagination.has_prev %}
+      <li class="page-item">
+        <a class="page-link"
+           href="{{ url_for('product.index', page=pagination.prev_num, search=search) }}">
+          &laquo; Prev
+        </a>
+      </li>
+      {% endif %}
+
+      {% for p in range(1, pagination.pages + 1) %}
+      <li class="page-item {% if p == pagination.page %}active{% endif %}">
+        <a class="page-link"
+           href="{{ url_for('product.index', page=p, search=search) }}">{{ p }}</a>
+      </li>
+      {% endfor %}
+
+      {% if pagination.has_next %}
+      <li class="page-item">
+        <a class="page-link"
+           href="{{ url_for('product.index', page=pagination.next_num, search=search) }}">
+          Next &raquo;
+        </a>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+
+  {% else %}
+  <div class="text-center py-5">
+    <p class="fs-1">🥒</p>
+    <h4 class="text-muted">No products found</h4>
+    {% if search %}
+    <p class="text-muted">Try a different search term.</p>
+    <a href="{{ url_for('product.index') }}"
+       class="btn-custom text-decoration-none px-4 py-2 rounded d-inline-block">
+      View All Products
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
